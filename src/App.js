@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import api from './services/api';
 
 import "./styles.css";
 
@@ -7,24 +8,31 @@ function App() {
   const [repositories, setRepositories] = useState([]);
   // Para buscar os projetos dentro do response.data através da função then 
   useEffect (() => {
-    api.get(repositories).then(response => {
+    api.get('repositories').then(response => {
       setRepositories(response.data)
     });
   }, []);
 
   async function handleAddRepository() {
-      // Copiando todo o array através do express operation
-       // setProjects ([...projects, `Novo projeto ${Date.now()}`]);  
-       const response = await api.post('repositories', {
-        url: "https://github.com/joaopaulomp0105",
-        title: "Desafio ReactJS 3",
-        techs: ["HTML", "Node.js"],
-    });
+    const response = await api.post('repositories', {
+      title: "Desafio ReactJS 3",
+      url: "https://github.com/joaopaulomp0105",
+      techs: ["HTML", "Node.js"],
+    })
+    // Copiando todo o array através do express-operation
     setRepositories([...repositories, response.data]);
   }
 
   async function handleRemoveRepository(id) {
-    // TODO
+    await api.delete(`repositories/${id}`);
+
+    /**
+     * Ira efetuar uma busca por todos os ids e ao encontrar o id correto
+     * ira verificar se e o mesmo id selecionado se for ira deletar   
+     */
+    setRepositories(repositories.filter(
+      repository => repository.id !== id
+    ))
   }
 
   return (
@@ -34,7 +42,7 @@ function App() {
           <li key={repository.id}>{repository.title}
             <button onClick={() => handleRemoveRepository(repository.id)}>
               Remover
-          </button>
+            </button>
           </li>)}
       </ul>
 
